@@ -1,0 +1,471 @@
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Password Assistant</title>
+	<link rel="stylesheet" href="./mdui-v0.4.1/css/mdui.min.css">
+	<script src="./mdui-v0.4.1/js/mdui.min.js"></script>
+	<script src="./resources/vue.js"></script>
+	<script src="./resources/makepy.js"></script>
+	<script src="./resources/sortutil.js"></script>
+	<script src="./resources/fileutil.js"></script>
+	<script src="./main.js"></script>
+	<link rel="stylesheet" href="./index.css" />
+	<link rel="stylesheet" href="./animate.min.css">
+
+	<style>
+		.box::-webkit-scrollbar {
+					display: none;
+				}
+	</style>
+</head>
+
+<body class="mdui-theme-accent-amber  mdui-appbar-with-toolbar box">
+	<header class="mdui-appbar mdui-appbar-fixed">
+		<div class="mdui-toolbar mdui-color-amber mdui-text-color-white">
+			<span id="my_menu" class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white animated  slideInLeft"><i class="mdui-icon material-icons">menu</i></span>
+			<a href="javascript:;" class="mdui-typo-headline  animated  slideInDown" style="-webkit-app-region: drag">PNOTE</a>
+			<a href="javascript:;" class="mdui-typo-title animated  slideInDown" style="-webkit-app-region: drag">Password
+				Assistant</a>
+			<div class="mdui-toolbar-spacer toolbar_txt" style="-webkit-app-region: drag">占位</div>
+			<input id="input_box" type="text" class="input_width animated slideInRight" oninput="onInputChange(value)"/>
+			<a href="javascript:;" id="search" class="mdui-btn mdui-btn-icon animated  slideInRight"><i class="mdui-icon material-icons">search</i></a>
+			<a href="javascript:;" id="min_btn" onclick="minW()" class="mdui-btn mdui-btn-icon animated  slideInRight"><i class="mdui-icon material-icons">remove</i></a>
+			<a href="javascript:;" onclick="maxW()" class="mdui-btn mdui-btn-icon animated  slideInRight"><i class="mdui-icon material-icons">crop_square</i></a>
+			<a href="javascript:;" onclick="closeW()" id="close_btn" class="mdui-btn mdui-btn-icon animated  slideInRight"><i
+				 class="mdui-icon material-icons">close</i></a>
+		</div>
+	</header>
+	<div class="mdui-drawer" id="my-left-drawer">
+		<ul class="mdui-list">
+			<li class="mdui-list-item mdui-ripple" onclick="exportFile()">
+				<i class="mdui-text-color-amber mdui-list-item-icon mdui-icon material-icons">backup</i>
+				<div class="mdui-list-item-content menu_txt">导出密码文本</div>
+			</li>
+			<!-- <li class="mdui-list-item mdui-ripple">
+				<i class="mdui-text-color-amber mdui-list-item-icon mdui-icon material-icons">archive</i>
+				<div class="mdui-list-item-content menu_txt">密码迁入</div>
+			</li>
+			<li class="mdui-list-item mdui-ripple">
+				<i class="mdui-text-color-amber mdui-list-item-icon mdui-icon material-icons">send</i>
+				<div class="mdui-list-item-content menu_txt">密码迁出</div>
+			</li> -->
+			<li class="mdui-list-item mdui-ripple" mdui-dialog="{target: '#about_pnote'}">
+				<i class="mdui-text-color-amber mdui-list-item-icon mdui-icon material-icons">help</i>
+				<div class="mdui-list-item-content menu_txt">关于PNOTE</div>
+			</li>
+			<li class="mdui-list-item mdui-ripple" mdui-dialog="{target: '#about_me'}">
+				<i class="mdui-text-color-amber mdui-list-item-icon mdui-icon material-icons">monetization_on</i>
+				<div class="mdui-list-item-content menu_txt">捐赠</div>
+			</li>
+		</ul>
+	</div>
+	<ul class="mdui-list " id="itme_list">
+		<li class="mdui-list-item  mdui-ripple item_style" v-for="item in items">
+			<div class="mdui-list-item-content">
+				<div class="item_letter mdui-color-grey-300" v-if="item.isShowL">{{item.letter}}</div>
+				<div class="mdui-list-item-title item_title">{{item.title}}</div>
+				<div class="mdui-list-item-text item_message">
+					<a class="mdui-toolbar-spacer">备注:{{item.details}}</a>
+					<button class="mdui-btn mdui-btn-icon mdui-color-theme-accent mdui-ripple item_icon mdui-float-right" v-on:click="update(item)"
+					 mdui-dialog="{target: '#update_item'}"><i class="mdui-icon material-icons mdui-text-color-white">edit</i></button>
+					<button class="mdui-btn mdui-color-grey-300 mdui-ripple item_icon mdui-float-right btn_txt" v-on:click="copy(item.pwd)"><i
+						 class="mdui-icon material-icons mdui-text-color-white">content_copy</i><a class="add_btn_color">复制密码</a></button>
+					<button class="mdui-btn mdui-color-grey-300 mdui-ripple item_icon mdui-float-right btn_txt" v-on:click="copy(item.account)"><i
+						 class="mdui-icon material-icons mdui-text-color-white">account_circle</i><a class="add_btn_color">复制账号</a></button>
+				</div>
+			</div>
+		</li>
+	</ul>
+	<button class="mdui-fab mdui-color-theme-accent mdui-ripple mdui-fab-fixed " mdui-dialog="{target: '#add_new_item'}"><i
+		 class="mdui-icon material-icons mdui-text-color-white">add</i></button>
+
+	<div class="mdui-dialog mine_dialog" id="about_me">
+		<p class="my_card_title">感谢您的使用</p>
+		<div>
+			<p class="my_card_content">如果这款应用能给您的工作带来一些便利，我感到很荣幸o(*￣︶￣*)o</p>
+			<p class="my_card_content">⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄您愿意请我喝杯咖啡吗？ O(∩_∩)O~可乐也行</p>
+			<div class="my_card_qrcode">
+				<img src="./resources/imgs/pay.jpg" />
+			</div>
+		</div>
+		<p class="my_card_content">问题和反馈：<a>allen_sha@163.com</a></p>
+	</div>
+
+	<div class="mdui-dialog add_dialog" id="about_pnote">
+			<p class="my_card_title mine_dialog">关于PNOTE</p>
+			<div>
+				<p class="my_card_content">PNOTE是一款本地账号密码管理软件。无需联网，不读取您的任何隐私信息，完全本地化存储。</p>
+				<p class="my_card_content">特点：</p>
+				<p class="my_card_content">1.Google Material Design设计风格的UI界面，简洁美观。</p>
+				<p class="my_card_content">2.支持账号信息文本导出。</p>
+				<p class="my_card_content">3.按首字母智能排序。</p>
+				<p class="my_card_content">4.快速查询。</p>
+				<p class="my_card_content">5.一键复制粘贴。</p>
+				<p class="my_card_content">6.完全本地化存储，既是优点也是缺点，优点是无需担心账号信息的泄露，安全。缺点是无法云同步账号信息。</p>
+			</div>
+		</div>
+
+
+	<div class="mdui-dialog add_dialog" id="add_new_item">
+		<div class="mdui-dialog-title">添加记录</div>
+		<div class="mdui-textfield mdui-textfield-floating-label add_input">
+			<i class="mdui-icon material-icons">subtitles</i>
+			<label class="mdui-textfield-label">请输入一个标题</label>
+			<input class="mdui-textfield-input" id='v_title' type="text" />
+		</div>
+		<div class="mdui-textfield mdui-textfield-floating-label add_input">
+			<i class="mdui-icon material-icons">account_box</i>
+			<label class="mdui-textfield-label">请输入账号</label>
+			<input class="mdui-textfield-input" id='v_account' type="text" />
+		</div>
+		<div class="mdui-textfield mdui-textfield-floating-label add_input">
+			<i class="mdui-icon material-icons">confirmation_number</i>
+			<label class="mdui-textfield-label">请输入密码</label>
+			<input class="mdui-textfield-input" id='v_pwd' type="text" />
+		</div>
+		<div class="mdui-textfield mdui-textfield-floating-label add_input">
+			<i class="mdui-icon material-icons">textsms</i>
+			<label class="mdui-textfield-label">备注</label>
+			<input class="mdui-textfield-input" id='v_details' type="text" />
+		</div>
+		<button id="btn_confirm" onclick="addNewData()" class="mdui-btn mdui-color-theme-accent mdui-ripple add_btn mdui-float-right mdui-btn-raised"><a
+			 class="add_btn_color">确认</a></button>
+		<button id="btn_cancel" onclick="closeAlert()" class="mdui-btn mdui-color-grey mdui-ripple add_btn mdui-float-right mdui-btn-raised"><a
+			 class="add_btn_color">取消</a></button>
+	</div>
+
+	<div class="mdui-dialog add_dialog" id="update_item">
+		<div class="mdui-dialog-title">详细信息</div>
+		<div class="mdui-textfield add_input">
+			<i class="mdui-icon material-icons">subtitles</i>
+			<label class="mdui-textfield-label">标题</label>
+			<input class="mdui-textfield-input" id='v_title' type="text" v-model="bean.title" />
+		</div>
+		<div class="mdui-textfield  add_input">
+			<i class="mdui-icon material-icons">account_box</i>
+			<label class="mdui-textfield-label">账号</label>
+			<input class="mdui-textfield-input" id='v_account' type="text" v-model="bean.account" />
+		</div>
+		<div class="mdui-textfield  add_input">
+			<i class="mdui-icon material-icons">confirmation_number</i>
+			<label class="mdui-textfield-label">密码</label>
+			<input class="mdui-textfield-input" id='v_pwd' type="text" v-model="bean.pwd" />
+		</div>
+		<div class="mdui-textfield  add_input">
+			<i class="mdui-icon material-icons">textsms</i>
+			<label class="mdui-textfield-label">备注</label>
+			<input class="mdui-textfield-input" id='v_details' type="text" v-model="bean.details" />
+		</div>
+		<button id="btn_confirm" v-on:click="updateSelectedData(bean)" class="mdui-btn mdui-color-theme-accent mdui-ripple add_btn mdui-float-right mdui-btn-raised"><a
+			 class="add_btn_color">修改</a></button>
+		<button id="btn_confirm" v-on:click="deleteSelectedData(bean)" class="mdui-btn mdui-color-pink-400 mdui-ripple add_btn mdui-float-right mdui-btn-raised"><a
+			 class="add_btn_color">删除</a></button>
+		<button id="btn_cancel" v-on:click="cancel"  class="mdui-btn mdui-color-grey mdui-ripple add_btn mdui-float-right mdui-btn-raised"><a
+			 class="add_btn_color">取消</a></button>
+	</div>
+
+	<div id="place_holder_view" class="mine_dialog" v-if="isShow">
+		<img class="welcome_icon animated slideInDown" src="./resources/imgs/logo.png" />
+		<p class="welcome_title animated slideInDown">PNOTE</p>
+		<p class="welcome_message animated slideInRight">轻量、简洁、高效、安全、Material Design</p>
+		<p class="welcome_message2 animated slideInLeft">账户密码本地管理</p>
+	</div>
+
+</body>
+
+
+<!-- 列表赋值 -->
+<script>
+	var example1 = new Vue({
+		el: '#itme_list',
+		data: {
+			items: queryAllData().sort(compare)
+		},
+		methods: {
+			copy: function (text) {
+				if (text.indexOf('-') !== -1) {
+					let arr = text.split('-')
+					text = arr[0] + arr[1]
+				}
+				var textArea = document.createElement("textarea");
+				textArea.style.position = 'fixed';
+				textArea.style.top = '0';
+				textArea.style.left = '0';
+				textArea.style.width = '2em';
+				textArea.style.height = '2em';
+				textArea.style.padding = '0';
+				textArea.style.border = 'none';
+				textArea.style.outline = 'none';
+				textArea.style.boxShadow = 'none';
+				textArea.style.background = 'transparent';
+				textArea.value = text;
+				document.body.appendChild(textArea);
+				textArea.select();
+				try {
+					var successful = document.execCommand('copy');
+				} catch (err) {
+
+				}
+				document.body.removeChild(textArea);
+				mdui.snackbar({
+					message: '已成功复制到粘贴板',
+					position: 'right-bottom',
+					timeout: 1000
+				});
+			},
+
+			update: function (obj) {
+				detailBean.bean = obj
+			}
+		}
+	})
+	sortList()
+	function sortList() {
+		for (var i = 0; i < example1.items.length; i++) {
+			if (i > 0 && example1.items[i - 1].letter == example1.items[i].letter) {
+				example1.items[i].isShowL = false
+			} else {
+				example1.items[i].isShowL = true
+
+			}
+		}
+	}
+
+	function refreshList() {
+		example1.items = queryAllData().sort(compare)
+		sortList()
+		if(example1.items.length>0){
+			showHolder.isShow = false
+		}else{
+			showHolder.isShow=true
+		}
+	}
+
+	function addNewData() {
+		if(document.getElementById('v_title').value==''){
+			mdui.snackbar({
+					message: '标题不能为空',
+					position: 'right-bottom',
+					timeout: 1000
+				});
+			return
+		}
+		else if(document.getElementById('v_account').value==''){
+			mdui.snackbar({
+					message: '账号不能为空',
+					position: 'right-bottom',
+					timeout: 1000
+				});
+			return
+		}
+		else if(document.getElementById('v_pwd').value==''){
+			mdui.snackbar({
+					message: '密码不能为空',
+					position: 'right-bottom',
+					timeout: 1000
+				});
+			return
+		}
+
+		closeAlert();
+		var le = getLetter(document.getElementById('v_title').value)
+		let newData = {
+			title: document.getElementById('v_title').value,
+			letter: le,
+			isShowL: true,
+			account: document.getElementById('v_account').value,
+			pwd: document.getElementById('v_pwd').value,
+			details: document.getElementById('v_details').value
+		}
+		insertNewData(newData)
+		example1.items.push(newData)
+		example1.items.sort(compare)
+		sortList()
+		showHolder.isShow = false
+	}
+
+
+
+	//是否隐藏引导页
+	var showHolder = new Vue({
+		el: '#place_holder_view',
+		data: {
+			isShow: example1.items.length > 0 ? false : true
+		}
+	})
+
+	//明细bean
+	var detailBean = new Vue({
+		el: '#update_item',
+		data: {
+			bean: {
+				title: '',
+				letter: '',
+				isShowL: true,
+				account: '',
+				pwd: '',
+				details: ''
+			}
+		}, methods: {
+			updateSelectedData: function (item) {
+				if(item.title==''){
+					mdui.snackbar({
+							message: '标题不能为空',
+							position: 'right-bottom',
+							timeout: 1000
+						});
+					return
+				}
+				else if(item.account==''){
+					mdui.snackbar({
+							message: '账号不能为空',
+							position: 'right-bottom',
+							timeout: 1000
+						});
+					return
+				}
+				else if(item.pwd==''){
+					mdui.snackbar({
+							message: '密码不能为空',
+							position: 'right-bottom',
+							timeout: 1000
+						});
+					return
+				}
+				closeAlert()
+				updateData(item.index,item)
+				refreshList()
+			},
+			deleteSelectedData: function (item) {
+				closeAlert()
+				deleteData(item.index)
+				refreshList()
+			},
+			cancel: function(){
+				closeAlert()
+				refreshList()
+			}
+		}
+	})
+
+
+</script>
+
+
+<script>
+	var inst = new mdui.Drawer('#my-left-drawer');
+	//先关闭，解决UI需要多次点击才能打开的bug，UI框架默认展开（比较蛋疼）
+	inst.close();
+	var isShow = false;
+	document.getElementById('my_menu').addEventListener('click', function () {
+		if (isShow == false) {
+			inst.open();
+			isShow = true;
+		} else {
+			inst.close();
+			isShow = false;
+		}
+	});
+</script>
+
+<script>
+	function closeAlert() {
+		var inst = new mdui.Dialog('#add_new_item');
+		var inst2 = new mdui.Dialog('#update_item');
+		inst.close()
+		inst2.close()
+	}
+</script>
+
+<script>
+	function getLetter(str) {
+		if (str != null && str.length > 0) {
+			var results = makePy(str.substring(0, 1));
+			return results[0];
+		}
+	}
+</script>
+<script>
+	function onInputChange(value){
+		var newArr=[];
+		var str = value.replace(/(^\s*)|(\s*$)/g, "")
+		example1.items=queryAllData()
+		if(str!=''){
+			for (var i = 0; i < example1.items.length; i++) {
+				if(example1.items[i].title.indexOf(str)!=-1){
+					newArr.push(example1.items[i])
+				}
+			}
+			example1.items=newArr
+		}
+		example1.items.sort(compare)
+		sortList()
+	}
+</script>
+<script>
+	var ipcM = require('electron').ipcRenderer;
+
+	function maxW() {
+		ipcM.send('window-max');
+	}
+
+	function minW() {
+		ipcM.send('window-min');
+	}
+
+	function closeW() {
+		ipcM.send('window-close');
+	}
+
+</script>
+
+<script>
+	/***
+	 * 
+	 * @param  {[string]} fileName [文件名 如："test.txt"]
+     * @param  {[string]} data     [数据 如："username:key \r\n password:123456"]
+	 * */
+	function exportFile() {
+		var fileName='pnote.txt';
+		var data=
+				"=========================================================\r\n\r\n"+
+				"                 PNOTE Password Assistamt                \r\n\r\n"+
+				"=========================================================\r\n\r\n"
+		for (var i = 0; i < example1.items.length; i++) {
+			data+=
+				"标题："+example1.items[i].title+"\r\n"+
+				"账号："+example1.items[i].account+"\r\n"+
+				"密码："+example1.items[i].pwd+"\r\n"+
+				"备注："+example1.items[i].details+"\r\n"+
+				"---------------------------------------------------------\r\n"
+		}				
+		var explorer = navigator.userAgent.toLowerCase();
+            if (explorer.indexOf("trident") > 0) {//IE 5+
+                var wss = new ActiveXObject("WScript.Shell");
+                var desktopUrl = wss.SpecialFolders("Desktop");
+                var fso = new ActiveXObject("Scripting.FileSystemObject");
+                var tf = fso.CreateTextFile(desktopUrl + "\\" + fileName, true);
+                tf.Write(data);
+                tf.Close();
+            } else {//fireFox chrome
+                var urlObj = window.URL || window.webkitURL || window;
+                var blob = new Blob([data]);
+                var link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+                link.href = urlObj.createObjectURL(blob);
+                link.download = fileName;
+                saveClick(link);
+            }
+
+            function saveClick(obj) {
+                var e = document.createEvent("MouseEvents");
+                e.initMouseEvent(
+                    "click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null
+                );
+                obj.dispatchEvent(e);
+            }
+}
+</script>
+
+
+</html>

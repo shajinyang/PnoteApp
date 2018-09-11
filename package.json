@@ -1,0 +1,24 @@
+{
+  "name": "PNOTE",
+  "version": "1.0.0",
+  "description": "A application for managing your password",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "packager": "electron-packager . pnote --win --out release/pnote --arch=x64 --version1.0.0 --overwrite --ignore=node_modules --icon=logo.ico",
+    "packager-32": "electron-packager . pnote --win --out release/pnote-x32 --arch=ia32 --version1.0.0 --overwrite --ignore=node_modules --icon=logo.ico",
+    "dist-win": "electron-builder --win --ia32 "
+  },
+  "author": "S-J-Y",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^2.0.8",
+    "electron-winstaller": "^2.6.4"
+  },
+  "build": {
+    "appId": "s-j-y",  
+    "win": {
+      "icon": "logo.ico" 
+    }
+  }
+}

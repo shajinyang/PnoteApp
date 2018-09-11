@@ -1,0 +1,37 @@
+#setting_menu{margin-top: 70px;}
+
+.list_style{padding-top: 80px}
+
+.input_width{width: 20% ;padding-left:8px;padding-right:8px;padding-top: 8px;padding-bottom:8px;border: 0.5px solid #fff;border-radius: 3px}
+.input:focus{
+    width: 20% ;padding-left:8px;padding-right:8px;padding-top: 8px;padding-bottom:8px;border: 0.5px solid #FFC107;
+}
+
+.toolbar_txt{opacity: 0; }
+
+.item_letter{padding-left: 8px;padding-top: 4px;padding-bottom: 4px}
+.item_title{padding: 8px;font-size: 18px}
+.item_message{padding-left: 8px;font-size: 14px}
+
+.item_diver{margin-top: 8px}
+
+.item_icon{margin-left: 32px}
+
+.menu_txt{font-size: 16px }
+
+.my_card_title{font-size:24px}
+.my_card_content{font-size:16px;margin-left: 16px;margin-right: 16px}
+.my_card_qrcode{margin: 16px}
+
+.add_dialog{border-radius:4px}
+.mine_dialog{border-radius:4px;text-align: center}
+.add_input{margin-left: 24px;margin-right: 24px}
+.add_btn{margin-right: 24px;margin-bottom: 16px;border-radius:3px;}
+.add_btn_color{color:#fff;}
+
+.btn_txt{font-size: 12px; border-radius: 3px;color: white}
+
+.welcome_icon{width: 80px;height: 80px;margin-top: 10%}
+.welcome_title{color: #333;font-size: 24px}
+.welcome_message{color: #555;font-size: 32px}
+.welcome_message2{color: #666;font-size: 20px}
