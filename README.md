@@ -7,7 +7,7 @@ UI：VUE + MDUI
 存储：localStorage
 打包：electron
 
-### 构建部署（仅windows环境，穷人买不起mac ）
+### 构建部署（仅windows环境）
 
 	1.安装node 环境（不会的话，方法自行百度）
 	2.安装 electron  
